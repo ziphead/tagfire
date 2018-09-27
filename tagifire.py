@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 
 class Command(BaseCommand):
-    help = 'trans tag wrapper. Input the module names you want to modify./ Modules template folder will be scanned and modified recursively'
+    help = 'trans tag wrapper. Input the module names you want to modify. Modules template folder will be scanned and modified recursively'
 
     
     def add_arguments(self, parser):
@@ -47,17 +47,19 @@ class Command(BaseCommand):
             module_url = url+'/templates/'
             if os.path.exists(module_url):
                 PATH = os.path.join(module_url)
-                for file in os.listdir(PATH):
-                    if file.endswith(".html"):
-                        file_path = PATH+file
-                        with open (file_path, 'r' ) as f:
-                            content = f.read()
-                        content_new = re.sub('(>([^{}<>()]+\S)<)|(alt="(\w*)")', self.dashrepl, content, flags = re.M)
-                        f.close()
-                        with open (file_path, 'w' ) as g:
-                            g.write(content_new)
-                        g.close()
-                        self.stdout.write(self.style.SUCCESS('Successfully wrapped "%s"' % file_path))
+                for root,d_names,f_names in os.walk(PATH):
+                    print( root, d_names, f_names)
+                    for file in os.listdir(PATH):
+                        if file.endswith(".html"):
+                            file_path = PATH+file
+                            with open (file_path, 'r' ) as f:
+                                content = f.read()
+                            content_new = re.sub('(>([^{}<>()]+\S)<)|(alt="(\w*)")', self.dashrepl, content, flags = re.M)
+                            f.close()
+                            with open (file_path, 'w' ) as g:
+                                g.write(content_new)
+                            g.close()
+                            self.stdout.write(self.style.SUCCESS('Successfully wrapped "%s"' % file_path))
             else:
                 er_message = "module {} doesn't exist".format(url)
                 self.stdout.write(er_message, )
